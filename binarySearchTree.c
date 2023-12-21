@@ -77,6 +77,20 @@ struct Node* delete(struct Node *root, int val) {
     return root;
 }
 
+struct Node* search(struct Node *root, int val) {
+    if (root == NULL) {
+        return NULL;
+    }
+
+    if (root->val == val) {
+        return root;
+    } else if (val < root->val) {
+        return search(root->left, val);
+    } else if (val > root->val) {
+        return search(root->right, val);
+    }
+}
+
 void printInorder(struct Node *root) {
     if (root == NULL) {
         return;
@@ -149,6 +163,12 @@ int main(void) {
     printf("In-order traversal of the tree after inserting 100: ");
     printInorder(root);
     printf("\n");
+
+    // Test search
+    printf("Searching for the adress of node with value 100: ");
+    printf("%p\n", search(root,100));
+    printf("Searching for the adress of a deleted node: ");
+    printf("%p\n", search(root,20));
 
     // Free memory
     destroyTree(root);
