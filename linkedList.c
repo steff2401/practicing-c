@@ -15,6 +15,11 @@ struct linkedList {
 
 void insert(struct linkedList* list , int value) {
     struct node* node = malloc(sizeof(struct node));
+    if (node == NULL) {
+        printf("Allocation of memory failed.");
+        exit(EXIT_FAILURE);
+    }
+
     node->val = value;
     node->next = NULL;
     node->prev = NULL;
@@ -57,6 +62,11 @@ void destroyList(struct linkedList* list) {
 int main(void) {
     
     struct linkedList* list = malloc(sizeof(struct linkedList));
+    if (list == NULL) {
+        printf("Allocation of memory failed.");
+        exit(EXIT_FAILURE);
+    }
+
     list->head = NULL;
     list->tail = NULL;
     list->size = 0;
