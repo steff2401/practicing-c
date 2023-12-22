@@ -1,20 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct node {
+struct Node {
     int val;
-    struct node* next;
-    struct node* prev;
+    struct Node *next;
+    struct Node *prev;
 };
 
 struct linkedList {
-    struct node* head;
-    struct node* tail;
+    struct Node *head;
+    struct Node *tail;
     int size;
 };
 
-void insert(struct linkedList* list, int value) {
-    struct node* node = malloc(sizeof(struct node));
+void insert(struct linkedList *list, int value) {
+    struct Node *node = malloc(sizeof(struct Node));
     if (node == NULL) {
         printf("Allocation of memory failed.");
         exit(EXIT_FAILURE);
@@ -37,13 +37,13 @@ void insert(struct linkedList* list, int value) {
     list->size++;
 }
 
-void delete(struct linkedList* list, int value) {
+void delete(struct linkedList *list, int value) {
     if (list->size == 0) {
         return;
     }
 
     if (list->head->val == value) {
-        struct node* temp = list->head;
+        struct Node *temp = list->head;
         list->head = list->head->next;
         list->head->prev = NULL;
         free(temp);
@@ -52,7 +52,7 @@ void delete(struct linkedList* list, int value) {
     }
 
     if (list->tail->val == value) {
-        struct node* temp = list->tail;
+        struct Node *temp = list->tail;
         list->tail = list->tail->prev;
         list->tail->next = NULL;
         free(temp);
@@ -60,7 +60,7 @@ void delete(struct linkedList* list, int value) {
         return;
     }
 
-    struct node* node = list->head;
+    struct Node *node = list->head;
     while (node != NULL) {
         if (node->val == value) {
 
@@ -74,8 +74,8 @@ void delete(struct linkedList* list, int value) {
     }
 }
 
-void printList(struct linkedList* list) {
-    struct node* node = list->head;
+void printList(struct linkedList *list) {
+    struct Node *node = list->head;
 
     while (node != NULL) {
         (node->next != NULL ? printf("%d, ", node->val) : printf("%d\n", node->val));
@@ -83,9 +83,9 @@ void printList(struct linkedList* list) {
     }
 }
 
-void destroyList(struct linkedList* list) {
-    struct node* current = list->head;
-    struct node* temp;
+void destroyList(struct linkedList *list) {
+    struct Node *current = list->head;
+    struct Node *temp;
 
     while (current != NULL) {
         temp = current->next;
@@ -98,7 +98,7 @@ void destroyList(struct linkedList* list) {
 
 int main(void) {
     
-    struct linkedList* list = malloc(sizeof(struct linkedList));
+    struct linkedList *list = malloc(sizeof(struct linkedList));
     if (list == NULL) {
         printf("Allocation of memory failed.");
         exit(EXIT_FAILURE);
@@ -118,7 +118,7 @@ int main(void) {
     delete(list,1);
     delete(list,5);
 
-    printf("List after deletion of 1, 5 and 20: ");
+    printf("List after deletion of 1, 5 and 10: ");
     printList(list);
     destroyList(list);
 
