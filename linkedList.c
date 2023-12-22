@@ -7,13 +7,13 @@ struct Node {
     struct Node *prev;
 };
 
-struct linkedList {
+struct LinkedList {
     struct Node *head;
     struct Node *tail;
     int size;
 };
 
-void insert(struct linkedList *list, int value) {
+void insert(struct LinkedList *list, int value) {
     struct Node *node = malloc(sizeof(struct Node));
     if (node == NULL) {
         printf("Allocation of memory failed.");
@@ -37,7 +37,7 @@ void insert(struct linkedList *list, int value) {
     list->size++;
 }
 
-void delete(struct linkedList *list, int value) {
+void delete(struct LinkedList *list, int value) {
     if (list->size == 0) {
         return;
     }
@@ -74,7 +74,7 @@ void delete(struct linkedList *list, int value) {
     }
 }
 
-void printList(struct linkedList *list) {
+void printList(struct LinkedList *list) {
     struct Node *node = list->head;
 
     while (node != NULL) {
@@ -83,7 +83,7 @@ void printList(struct linkedList *list) {
     }
 }
 
-void destroyList(struct linkedList *list) {
+void destroyList(struct LinkedList *list) {
     struct Node *current = list->head;
     struct Node *temp;
 
@@ -98,7 +98,7 @@ void destroyList(struct linkedList *list) {
 
 int main(void) {
     
-    struct linkedList *list = malloc(sizeof(struct linkedList));
+    struct LinkedList *list = malloc(sizeof(struct LinkedList));
     if (list == NULL) {
         printf("Allocation of memory failed.");
         exit(EXIT_FAILURE);
