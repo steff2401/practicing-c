@@ -13,7 +13,7 @@ struct LinkedList {
     int size;
 };
 
-void insert(struct LinkedList *list, int value) {
+struct Node* createNode(int value) {
     struct Node *node = malloc(sizeof(struct Node));
     if (node == NULL) {
         printf("Allocation of memory failed.");
@@ -23,6 +23,11 @@ void insert(struct LinkedList *list, int value) {
     node->val = value;
     node->next = NULL;
     node->prev = NULL;
+    return node;
+}
+
+void insert(struct LinkedList *list, int value) {
+    struct Node *node = createNode(value);
 
     if (list->head == NULL) {
         list->head = node;
