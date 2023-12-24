@@ -43,14 +43,13 @@ int main(void) {
         printHeap(heap);
     }
 
-    free(heap->array);
-    free(heap);
     return 0;
 }
 
 void insert(struct Heap *heap, int element) {
     if (heap->currentSize >= heap->maxSize) {
         printf("Heap is full.\n");
+        destroyHeap(heap);
         exit(EXIT_FAILURE);
     }
 
@@ -72,6 +71,7 @@ void insert(struct Heap *heap, int element) {
 int removeMin(struct Heap *heap) {
     if (heap->currentSize <= 0) {
         printf("Heap is empty.\n");
+        destroyHeap(heap);
         exit(EXIT_FAILURE);
     }
 
