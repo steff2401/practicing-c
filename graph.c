@@ -7,6 +7,7 @@ typedef struct Node Node;
 struct Node {
     int value, nNeighbours, neighbourSpace;
     Node **neighbours;
+    int *weights; // weights of edges to neighbours at corresponding index
 };
 
 typedef struct Graph {
@@ -15,7 +16,7 @@ typedef struct Graph {
 } Graph;
 
 Node* createNode(Graph *graph, int value);
-void addNeighbour(Node *node, Node *neighbour);
+void addEdge(Node *nodeFrom, Node *nodeTo, int weight);
 void printGraph(Graph *graph);
 
 int main(void) {
@@ -28,11 +29,11 @@ int main(void) {
     Node* node3 = createNode(&graph, 3);
     Node* node4 = createNode(&graph, 4);
 
-    // Add neighbours
-    addNeighbour(node1, node2);
-    addNeighbour(node2, node1);
-    addNeighbour(node1, node3);
-    addNeighbour(node2, node4);
+    // Add edges
+    addEdge(node1, node2, 10);
+    addEdge(node2, node1, 15);
+    addEdge(node1, node3, 20);
+    addEdge(node2, node4, 25);
 
     // Print out nodes and their neighbours
     printGraph(&graph);
@@ -40,6 +41,7 @@ int main(void) {
     // Free memory
     for (int i = 0; i < graph.nNodes; i++) {
         free(graph.nodes[i]->neighbours);
+        free(graph.nodes[i]->weights);
         free(graph.nodes[i]);
     }
 
@@ -47,6 +49,11 @@ int main(void) {
 }
 
 Node* createNode(Graph *graph, int value) {
+    if (graph->nNodes >= MAX_NODES) {
+        printf("The graph is full.");
+        exit(EXIT_FAILURE);
+    }
+
     Node *node = malloc(sizeof(Node));
     if (node == NULL) {
         printf("Memory allocation failed.");
@@ -57,7 +64,8 @@ Node* createNode(Graph *graph, int value) {
     node->nNeighbours = 0;
     node->neighbourSpace = 5; // initial capacity of 5 neighbours
     node->neighbours = malloc(sizeof(Node*)*node->neighbourSpace);
-    if (node->neighbours == NULL) {
+    node->weights = malloc(sizeof(int)*node->neighbourSpace);
+    if (node->neighbours == NULL || node->weights == NULL) {
         printf("Memory allocation failed.");
         exit(EXIT_FAILURE);
     }
@@ -67,24 +75,26 @@ Node* createNode(Graph *graph, int value) {
     return node;
 }
 
-// this function will only add neighbour for one node (the graph is directed)
-void addNeighbour(Node *node, Node *neighbour) {
-    if (node == NULL || neighbour == NULL) {
+void addEdge(Node *nodeFrom, Node *nodeTo, int weight) {
+    if (nodeFrom == NULL || nodeTo == NULL) {
         printf("NullPointerException"); // guess which language I learnt before C?
         exit(EXIT_FAILURE);
     }
 
-    if (node->nNeighbours >= node->neighbourSpace) { // if neighbour capacity full
-        node->neighbourSpace *= 2; // double the capacity
-        Node **np = realloc(node->neighbours, sizeof(Node*)*node->neighbourSpace);
-        if (np == NULL) {
+    if (nodeFrom->nNeighbours >= nodeFrom->neighbourSpace) { // if neighbour capacity full
+        nodeFrom->neighbourSpace *= 2; // double the capacity
+        Node **newNeighbours = realloc(nodeFrom->neighbours, sizeof(Node*)*nodeFrom->neighbourSpace);
+        int *newWeights = realloc(nodeFrom->weights, sizeof(int)*nodeFrom->neighbourSpace);
+        if (newNeighbours == NULL || newWeights == NULL) {
             printf("Reallocation of memory failed.");
             exit(EXIT_FAILURE);
         }
-        node->neighbours = np;
+        nodeFrom->neighbours = newNeighbours;
+        nodeFrom->weights = newWeights;
     }
 
-    node->neighbours[node->nNeighbours++] = neighbour;
+    nodeFrom->neighbours[nodeFrom->nNeighbours] = nodeTo;
+    nodeFrom->weights[nodeFrom->nNeighbours++] = weight; 
 }
 
 void printGraph(Graph *graph) {
@@ -93,7 +103,7 @@ void printGraph(Graph *graph) {
 
         printf("Node %d has neighbours: ", node->value);
         for (int j = 0; j < node->nNeighbours; j++) {
-            printf("%d ", node->neighbours[j]->value);
+            printf("%d with weight %d, ", node->neighbours[j]->value, node->weights[j]);
         }
         printf("\n");
     }
