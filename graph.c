@@ -22,6 +22,7 @@ typedef struct Graph {
 
 Node* createNode(Graph *graph, int value);
 void addNeighbour(Node *node, Node *neighbour);
+void printGraph(Graph *graph);
 
 int main(void) {
     // Initialize graph with member variables to NULL/0
@@ -40,15 +41,7 @@ int main(void) {
     addNeighbour(node2, node4);
 
     // Print out nodes and their neighbours
-    for (int i = 0; i < graph.nNodes; i++) {
-        Node* node = graph.nodes[i];
-
-        printf("Node %d has neighbours: ", node->value);
-        for (int j = 0; j < node->nNeighbours; j++) {
-            printf("%d ", node->neighbours[j]->value);
-        }
-        printf("\n");
-    }
+    printGraph(&graph);
 
     // Free memory
     for (int i = 0; i < graph.nNodes; i++) {
@@ -75,8 +68,7 @@ Node* createNode(Graph *graph, int value) {
         exit(EXIT_FAILURE);
     }
 
-    graph->nodes[graph->nNodes] = node;
-    graph->nNodes++;
+    graph->nodes[graph->nNodes++] = node;
 
     return node;
 }
@@ -99,4 +91,16 @@ void addNeighbour(Node *node, Node *neighbour) {
     }
 
     node->neighbours[node->nNeighbours++] = neighbour; 
+}
+
+void printGraph(Graph *graph) {
+    for (int i = 0; i < graph->nNodes; i++) {
+        Node* node = graph->nodes[i];
+
+        printf("Node %d has neighbours: ", node->value);
+        for (int j = 0; j < node->nNeighbours; j++) {
+            printf("%d ", node->neighbours[j]->value);
+        }
+        printf("\n");
+    }
 }
