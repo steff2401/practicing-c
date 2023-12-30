@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define MAX_NODES 5
-#define MAX_EDGES 10
+#define MAX_NODES 10
 
 typedef struct Node Node;
 
@@ -10,13 +9,8 @@ struct Node {
     Node **neighbours;
 };
 
-typedef struct Edge {
-    Node *nodeA, *nodeB;
-} Edge;
-
 typedef struct Graph {
     Node* nodes[MAX_NODES];
-    Edge* edges[MAX_EDGES];
     int nNodes;
 } Graph;
 
@@ -90,7 +84,7 @@ void addNeighbour(Node *node, Node *neighbour) {
         node->neighbours = np;
     }
 
-    node->neighbours[node->nNeighbours++] = neighbour; 
+    node->neighbours[node->nNeighbours++] = neighbour;
 }
 
 void printGraph(Graph *graph) {
