@@ -28,6 +28,7 @@ int main(void) {
     printf("%d\n", get(map, "A"));
     printf("%d\n", get(map, "B"));
     printf("%d\n", get(map, "C")); // should print 4
+    // printf("%d\n", get(map, "D")); // should say key not in map
 
     delete(map, "C");
     printf("%d\n", get(map, "C")); // should say key not in map
@@ -68,15 +69,15 @@ int hash(char *key, int capacity) {
 }
 
 void put(HashMap *map, char *key, int value) {
-    if (map->currSize > map->capacity) {
+    int index = hash(key, map->capacity);
+    // if map is full and you try to put in new key-val pair
+    if (map->currSize >= map->capacity && map->pairs[index]->key != key) {
         printf("Map is full.\n");
         destroyHashMap(map);
         exit(EXIT_FAILURE);
     }
-
-    int index = hash(key, map->capacity);
     
-    // if index is empty
+    // if key-val pair doesn't exist from before
     if (map->pairs[index] == NULL) {
         Pair *pair = malloc(sizeof(Pair));
         if (pair == NULL) {
@@ -89,7 +90,7 @@ void put(HashMap *map, char *key, int value) {
         map->pairs[index] = pair;
         map->currSize++;
 
-    // if you want to update value at same key
+    // if you want to update value in key-val pair
     } else if (map->pairs[index]->key == key) {
         map->pairs[index]->value = value;
     }
@@ -98,7 +99,7 @@ void put(HashMap *map, char *key, int value) {
 
 int get(HashMap *map, char *key) {
     int index = hash(key, map->capacity);
-    if (map->pairs[index] != NULL) {
+    if (map->pairs[index] != NULL && map->pairs[index]->key == key) {
         return map->pairs[index]->value;
     }
     printf("Key \"%s\" not in map.\n", key);
@@ -108,7 +109,7 @@ int get(HashMap *map, char *key) {
 
 void delete(HashMap *map, char *key) {
     int index = hash(key, map->capacity);
-    if (map->pairs[index] != NULL) {
+    if (map->pairs[index] != NULL && map->pairs[index]->key == key) {
         free(map->pairs[index]);
         map->pairs[index] = NULL;
         map->currSize--;
