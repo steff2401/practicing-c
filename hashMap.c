@@ -7,12 +7,12 @@ typedef struct {
 } Pair;
 
 typedef struct {
-    int capacity, currSize;
+    int maxSize, currSize;
     Pair **pairs;
 } HashMap;
 
-HashMap* createEmptyMap(int capacity);
-int hash(char *key, int capacity);
+HashMap* createEmptyMap(int maxSize);
+int hash(char *key, int maxSize);
 void put(HashMap *map, char *key, int value);
 int get(HashMap *map, char *key);
 void delete(HashMap *map, char *key);
@@ -37,41 +37,37 @@ int main(void) {
     return 0;
 }
 
-HashMap* createEmptyMap(int capacity) {
+HashMap* createEmptyMap(int maxSize) {
     HashMap *map = malloc(sizeof(HashMap));
     if (map == NULL) {
         printf("Memory allocation failed.\n");
         exit(EXIT_FAILURE);
     }
-    map->capacity = capacity;
+    map->maxSize = maxSize;
     map->currSize = 0;
-    map->pairs = calloc(capacity, sizeof(Pair*));
+    map->pairs = calloc(maxSize, sizeof(Pair*));
     if (map->pairs == NULL) {
         printf("Memory allocation failed.\n");
         destroyHashMap(map);
         exit(EXIT_FAILURE);
     }
-    // initialize pairs to NULL
-    for (int i = 0; i < capacity; i++) {
-        map->pairs[i] = NULL; 
-    }
     
     return map;
 }
 
-int hash(char *key, int capacity) {
+int hash(char *key, int maxSize) {
     int hash = 0;
     for (int i = 0; key[i] != '\0'; i++) {
         int ascii = (int) key[i];
         hash = 31*hash + ascii;
     }
-    return hash % capacity;
+    return hash % maxSize;
 }
 
 void put(HashMap *map, char *key, int value) {
-    int index = hash(key, map->capacity);
+    int index = hash(key, map->maxSize);
     // if map is full and you try to put in new key-val pair
-    if (map->currSize >= map->capacity && map->pairs[index]->key != key) {
+    if (map->currSize >= map->maxSize && map->pairs[index]->key != key) {
         printf("Map is full.\n");
         destroyHashMap(map);
         exit(EXIT_FAILURE);
@@ -98,7 +94,7 @@ void put(HashMap *map, char *key, int value) {
 }
 
 int get(HashMap *map, char *key) {
-    int index = hash(key, map->capacity);
+    int index = hash(key, map->maxSize);
     if (map->pairs[index] != NULL && map->pairs[index]->key == key) {
         return map->pairs[index]->value;
     }
@@ -108,7 +104,7 @@ int get(HashMap *map, char *key) {
 }
 
 void delete(HashMap *map, char *key) {
-    int index = hash(key, map->capacity);
+    int index = hash(key, map->maxSize);
     if (map->pairs[index] != NULL && map->pairs[index]->key == key) {
         free(map->pairs[index]);
         map->pairs[index] = NULL;
@@ -119,7 +115,7 @@ void delete(HashMap *map, char *key) {
 }
 
 void destroyHashMap(HashMap *map) {
-    for (int i = 0; i < map->capacity; i++) {
+    for (int i = 0; i < map->maxSize; i++) {
         free(map->pairs[i]);
     }
     free(map->pairs);
