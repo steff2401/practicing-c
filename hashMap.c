@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 typedef struct {
     char *key;
@@ -67,7 +68,7 @@ int hash(char *key, int maxSize) {
 void put(HashMap *map, char *key, int value) {
     int index = hash(key, map->maxSize);
     // if map is full and you try to put in new key-val pair
-    if (map->currSize >= map->maxSize && map->pairs[index]->key != key) {
+    if (map->currSize >= map->maxSize && strcmp(map->pairs[index]->key, key) != 0) {
         printf("Map is full.\n");
         destroyHashMap(map);
         exit(EXIT_FAILURE);
@@ -87,7 +88,7 @@ void put(HashMap *map, char *key, int value) {
         map->currSize++;
 
     // if you want to update value in key-val pair
-    } else if (map->pairs[index]->key == key) {
+    } else if (strcmp(map->pairs[index]->key, key) == 0) {
         map->pairs[index]->value = value;
     }
     //TODO: handle collision
@@ -95,7 +96,7 @@ void put(HashMap *map, char *key, int value) {
 
 int get(HashMap *map, char *key) {
     int index = hash(key, map->maxSize);
-    if (map->pairs[index] != NULL && map->pairs[index]->key == key) {
+    if (map->pairs[index] != NULL && strcmp(map->pairs[index]->key, key) == 0) {
         return map->pairs[index]->value;
     }
     printf("Key \"%s\" not in map.\n", key);
@@ -105,7 +106,7 @@ int get(HashMap *map, char *key) {
 
 void delete(HashMap *map, char *key) {
     int index = hash(key, map->maxSize);
-    if (map->pairs[index] != NULL && map->pairs[index]->key == key) {
+    if (map->pairs[index] != NULL && strcmp(map->pairs[index]->key, key) == 0) {
         free(map->pairs[index]);
         map->pairs[index] = NULL;
         map->currSize--;
