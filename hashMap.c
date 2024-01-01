@@ -8,12 +8,12 @@ typedef struct {
 } Pair;
 
 typedef struct {
-    int maxSize, currSize;
+    size_t maxSize, currSize;
     Pair **pairs;
 } HashMap;
 
-HashMap* createEmptyMap(int maxSize);
-int hash(char *key, int maxSize);
+HashMap* createEmptyMap(size_t maxSize);
+size_t hash(char *key, size_t maxSize);
 void put(HashMap *map, char *key, int value);
 int get(HashMap *map, char *key);
 void delete(HashMap *map, char *key);
@@ -38,7 +38,7 @@ int main(void) {
     return 0;
 }
 
-HashMap* createEmptyMap(int maxSize) {
+HashMap* createEmptyMap(size_t maxSize) {
     HashMap *map = malloc(sizeof(HashMap));
     if (map == NULL) {
         printf("Memory allocation failed.\n");
@@ -52,12 +52,12 @@ HashMap* createEmptyMap(int maxSize) {
         destroyHashMap(map);
         exit(EXIT_FAILURE);
     }
-    
+
     return map;
 }
 
-int hash(char *key, int maxSize) {
-    int hash = 0;
+size_t hash(char *key, size_t maxSize) {
+    size_t hash = 0;
     for (int i = 0; key[i] != '\0'; i++) {
         int ascii = (int) key[i];
         hash = 31*hash + ascii;
@@ -66,7 +66,7 @@ int hash(char *key, int maxSize) {
 }
 
 void put(HashMap *map, char *key, int value) {
-    int index = hash(key, map->maxSize);
+    size_t index = hash(key, map->maxSize);
     // if map is full and you try to put in new key-val pair
     if (map->currSize >= map->maxSize && strcmp(map->pairs[index]->key, key) != 0) {
         printf("Map is full.\n");
@@ -95,7 +95,7 @@ void put(HashMap *map, char *key, int value) {
 }
 
 int get(HashMap *map, char *key) {
-    int index = hash(key, map->maxSize);
+    size_t index = hash(key, map->maxSize);
     if (map->pairs[index] != NULL && strcmp(map->pairs[index]->key, key) == 0) {
         return map->pairs[index]->value;
     }
@@ -105,7 +105,7 @@ int get(HashMap *map, char *key) {
 }
 
 void delete(HashMap *map, char *key) {
-    int index = hash(key, map->maxSize);
+    size_t index = hash(key, map->maxSize);
     if (map->pairs[index] != NULL && strcmp(map->pairs[index]->key, key) == 0) {
         free(map->pairs[index]);
         map->pairs[index] = NULL;
