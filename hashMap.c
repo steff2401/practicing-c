@@ -82,7 +82,12 @@ void put(HashMap *map, char *key, int value) {
             destroyHashMap(map);
             exit(EXIT_FAILURE);
         }
-        pair->key = key;
+        pair->key = strdup(key); // duplicate key to make HashMap owner of it
+        if (pair->key == NULL) {
+            printf("Memory allocation failed.\n");
+            destroyHashMap(map);
+            exit(EXIT_FAILURE);
+        }
         pair->value = value;
         map->pairs[index] = pair;
         map->currSize++;
@@ -107,6 +112,7 @@ int get(HashMap *map, char *key) {
 void delete(HashMap *map, char *key) {
     size_t index = hash(key, map->maxSize);
     if (map->pairs[index] != NULL && strcmp(map->pairs[index]->key, key) == 0) {
+        free(map->pairs[index]->key);
         free(map->pairs[index]);
         map->pairs[index] = NULL;
         map->currSize--;
@@ -117,7 +123,10 @@ void delete(HashMap *map, char *key) {
 
 void destroyHashMap(HashMap *map) {
     for (int i = 0; i < map->maxSize; i++) {
-        free(map->pairs[i]);
+        if (map->pairs[i] != NULL) {
+            free(map->pairs[i]->key);
+            free(map->pairs[i]); 
+        }
     }
     free(map->pairs);
     free(map);
