@@ -13,6 +13,19 @@ struct LinkedList {
     int size;
 };
 
+struct LinkedList* createEmptyList(void) {
+    struct LinkedList *list = malloc(sizeof(struct LinkedList));
+    if (list == NULL) {
+        printf("Allocation of memory failed.");
+        exit(EXIT_FAILURE);
+    }
+    list->head = NULL;
+    list->tail = NULL;
+    list->size = 0;
+
+    return list;
+}
+
 struct Node* createNode(int value) {
     struct Node *node = malloc(sizeof(struct Node));
     if (node == NULL) {
@@ -44,6 +57,7 @@ void insert(struct LinkedList *list, int value) {
 
 void delete(struct LinkedList *list, int value) {
     if (list->size == 0) {
+        printf("Could not delete %d: list is empty.\n", value);
         return;
     }
 
@@ -77,6 +91,7 @@ void delete(struct LinkedList *list, int value) {
         }
         node = node->next;
     }
+    printf("Could not delete %d: value not in list.\n", value);
 }
 
 void printList(struct LinkedList *list) {
@@ -103,15 +118,7 @@ void destroyList(struct LinkedList *list) {
 
 int main(void) {
     
-    struct LinkedList *list = malloc(sizeof(struct LinkedList));
-    if (list == NULL) {
-        printf("Allocation of memory failed.");
-        exit(EXIT_FAILURE);
-    }
-
-    list->head = NULL;
-    list->tail = NULL;
-    list->size = 0;
+    struct LinkedList *list = createEmptyList();
     
     for (int i = 0; i < 10; i++) {
         insert(list,i+1);
