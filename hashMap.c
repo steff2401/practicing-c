@@ -19,22 +19,43 @@ int put(HashMap *map, char *key, int value);
 int get(HashMap *map, char *key, int *value);
 int delete(HashMap *map, char *key);
 void destroyHashMap(HashMap *map);
+void printHashMap(HashMap* map);
 
 int main() {
-    // Create a hash map of a limited size to force collisions
-    HashMap* map = createEmptyMap(3);
+    // Create a hash map with a limited size to cause collisions
+    HashMap* hashMap = createEmptyMap(5);
 
     printf("Hash Map Test:\n\n");
+
+    // Test 1: Add multiple elements to the hash map
+    printf("Test 1: Put elements in the hash map\n");
+    for (int i = 0; i < 10; ++i) {
+        char key[2];
+        sprintf(key, "%c", 'A' + i); // Create keys "A", "B", "C", etc.
+        put(hashMap, key, i + 1);    // Values will be 1, 2, 3, etc.
+    }
+    printHashMap(hashMap);
+    printf("\n");    
+
+    // Test 2: Delete elements and ensure they're removed properly
+    printf("Test 2: Delete some elements and ensure proper removal\n");
+    delete(hashMap, "C");
+    delete(hashMap, "H");
+    int success, value;
+    success = get(hashMap, "C", &value) == -1 && get(hashMap, "H", &value) == -1;
+    printHashMap(hashMap);
+    printf("%s\n\n", success ? "Test 2 passed" : "Test 2 failed");
     
-    // write tests here
+    // Free memory
+    destroyHashMap(hashMap);
+    printf("All tests completed\n");
 
     return 0;
 }
 
-
 /**
- * Summary: initialize a emtpy hash map
- * Parameters: maxSize - the maximum elements the hash map should hold
+ * Summary: initialize an emtpy hash map
+ * Parameters: maxSize - how many buckets the map will have
  * Return: pointer to initialized hash map
 */
 HashMap* createEmptyMap(size_t maxSize) {
@@ -203,4 +224,28 @@ void destroyHashMap(HashMap *map) {
     }
     free(map->pairs);
     free(map);
+}
+
+void printHashMap(HashMap* map) {
+
+    printf("HashMap Contents:\n");
+    for (int i = 0; i < map->maxSize; i++) {
+        Pair* currentPair = map->pairs[i];
+        printf("Bucket %d: ", i);
+        if (currentPair == NULL) {
+            printf("Empty\n");
+        } else {
+            // Iterate through the linked list in the current bucket
+            int pairIndex = 0;
+            while (currentPair != NULL) {
+                printf("(%s, %d)", currentPair->key, currentPair->value);
+                currentPair = currentPair->next;
+                if(currentPair != NULL) {
+                    printf(" -> ");
+                }
+                pairIndex++;
+            }
+            printf("\n");
+        }
+    }
 }
