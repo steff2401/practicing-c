@@ -13,7 +13,7 @@ typedef struct {
 } HashMap;
 
 HashMap* createEmptyMap(size_t maxSize);
-size_t hash(char *key, size_t maxSize);
+size_t hash(HashMap *map, char *key);
 int put(HashMap *map, char *key, int value);
 int get(HashMap *map, char *key, int *value);
 int delete(HashMap *map, char *key);
@@ -40,6 +40,11 @@ int main(void) {
     return 0;
 }
 
+/**
+ * Summary: initialize a emtpy hash map
+ * Parameters: maxSize - the maximum elements the hash map should hold
+ * Return: pointer to initialized hash map
+*/
 HashMap* createEmptyMap(size_t maxSize) {
     HashMap *map = malloc(sizeof(HashMap));
     if (map == NULL) {
@@ -58,19 +63,32 @@ HashMap* createEmptyMap(size_t maxSize) {
     return map;
 }
 
-size_t hash(char *key, size_t maxSize) {
+/**
+ * Summary: Hash a given string to valid index
+ * Parameters: map - pointer to hash map
+ *             key - string to be hashed 
+ * Return: The hashed value/a valid index
+*/
+size_t hash(HashMap *map, char* key) {
     size_t hash = 0;
     for (int i = 0; key[i] != '\0'; i++) {
         int ascii = (int) key[i];
         hash = 31*hash + ascii;
     }
-    return hash % maxSize;
+    return hash % map->maxSize;
 }
 
+/**
+ * Summary: Put a key-value pair into the hash map
+ * Parameters: map - pointer to hash map
+ *             key - key in the key-value pair
+ *             value - value in the key-value pair
+ * Return: 0 if sucessful, else -1
+*/
 int put(HashMap *map, char *key, int value) {
     //TODO: handle collision
 
-    size_t index = hash(key, map->maxSize);
+    size_t index = hash(map, key);
     // if map is full and you try to put in new key-val pair
     if (map->currSize >= map->maxSize && strcmp(map->pairs[index]->key, key) != 0) {
         printf("Map is full.\n");
@@ -102,10 +120,17 @@ int put(HashMap *map, char *key, int value) {
     return 0;
 }
 
+/**
+ * Summary: Retrieve value for the given key
+ * Parameters: map - pointer to hash map
+ *             key - key in key-value pair
+ *             value - adress to store the value from the retrieved key-value pair 
+ * Return: 0 if sucessful, else -1
+*/
 int get(HashMap *map, char *key, int *value) {
     //TODO: handle collision
 
-    size_t index = hash(key, map->maxSize);
+    size_t index = hash(map, key);
     if (map->pairs[index] != NULL && strcmp(map->pairs[index]->key, key) == 0) {
         *value = map->pairs[index]->value;
         return 0;
@@ -116,10 +141,16 @@ int get(HashMap *map, char *key, int *value) {
     }
 }
 
+/**
+ * Summary: Remove key-value pair from hash map
+ * Parameters: map - pointer to hash map
+ *             key - key in key-value pair
+ * Return: 0 if sucessful, else -1
+*/
 int delete(HashMap *map, char *key) {
     //TODO: handle collision
 
-    size_t index = hash(key, map->maxSize);
+    size_t index = hash(map, key);
     if (map->pairs[index] != NULL && strcmp(map->pairs[index]->key, key) == 0) {
         free(map->pairs[index]->key);
         free(map->pairs[index]);
@@ -132,6 +163,11 @@ int delete(HashMap *map, char *key) {
     }
 }
 
+/**
+ * Summary: Free allocated memory associated with the hash map
+ * Parameters: map - pointer to hash map
+ * Return: void
+*/
 void destroyHashMap(HashMap *map) {
     for (int i = 0; i < map->maxSize; i++) {
         if (map->pairs[i] != NULL) {
