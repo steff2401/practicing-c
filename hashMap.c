@@ -2,9 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 
-typedef struct {
+typedef struct Pair {
     char *key;
     int value;
+    struct Pair *next;
 } Pair;
 
 typedef struct {
@@ -19,26 +20,17 @@ int get(HashMap *map, char *key, int *value);
 int delete(HashMap *map, char *key);
 void destroyHashMap(HashMap *map);
 
-int main(void) {
-    HashMap *map = createEmptyMap(3);
+int main() {
+    // Create a hash map of a limited size to force collisions
+    HashMap* map = createEmptyMap(3);
 
-    if (put(map, "A", 1) == -1 || put(map, "B", 2) == -1 || 
-        put(map, "C", 3) == -1 || put(map, "C", 4) == -1) {
-            printf("Error in put()-function.\n");
-            destroyHashMap(map);
-            exit(EXIT_FAILURE);
-    }
+    printf("Hash Map Test:\n\n");
+    
+    // write tests here
 
-    int val1, val2, val3;
-    if (get(map, "A", &val1) == -1 || get(map, "B", &val2) == -1 || get(map, "C", &val3) == -1) {
-        printf("Error in get()-function.\n");
-    }
-
-    printf("A:%d, B:%d, C:%d\n", val1, val2, val3);
-
-    destroyHashMap(map);
     return 0;
 }
+
 
 /**
  * Summary: initialize a emtpy hash map
@@ -79,44 +71,57 @@ size_t hash(HashMap *map, char* key) {
 }
 
 /**
- * Summary: Put a key-value pair into the hash map
+ * Summary: Put a key-value pair into the hash map or update existing value
  * Parameters: map - pointer to hash map
  *             key - key in the key-value pair
  *             value - value in the key-value pair
  * Return: 0 if sucessful, else -1
 */
 int put(HashMap *map, char *key, int value) {
-    //TODO: handle collision
-
     size_t index = hash(map, key);
-    // if map is full and you try to put in new key-val pair
-    if (map->currSize >= map->maxSize && strcmp(map->pairs[index]->key, key) != 0) {
-        printf("Map is full.\n");
-        return -1;
+
+    // If bucket is empty
+    if (map->pairs[index] == NULL) {
+        Pair *newPair = malloc(sizeof(Pair));
+        newPair->key = strdup(key);
+        if (newPair->key == NULL) {
+            free(newPair);
+            printf("Memory allocation failed.");
+            exit(EXIT_FAILURE);
+        }
+        newPair->value = value;
+        newPair->next = NULL;
+        map->pairs[index] = newPair;
+        map->currSize++;
+        return 0;
     }
     
-    // if key-val pair doesn't exist from before
-    if (map->pairs[index] == NULL) {
-        Pair *pair = malloc(sizeof(Pair));
-        if (pair == NULL) {
-            printf("Memory allocation failed.\n");
-            destroyHashMap(map);
-            exit(EXIT_FAILURE);
+    // Check if the key already exists in the bucket
+    Pair *pair = map->pairs[index];
+    while(pair != NULL){
+        // If the key is already present, change the value
+        if(strcmp(pair->key, key) == 0) {
+            pair->value = value;
+            return 0;
         }
-        pair->key = strdup(key); // duplicate key to make HashMap owner of it
-        if (pair->key == NULL) {
-            printf("Memory allocation failed.\n");
-            destroyHashMap(map);
-            exit(EXIT_FAILURE);
+        if (pair->next == NULL) {
+            break;
         }
-        pair->value = value;
-        map->pairs[index] = pair;
-        map->currSize++;
-
-    // if you want to update value in key-val pair
-    } else if (strcmp(map->pairs[index]->key, key) == 0) {
-        map->pairs[index]->value = value;
+        pair = pair->next;
     }
+
+    // If the key is not already present, we have collision
+    Pair *newPair = malloc(sizeof(Pair));
+    newPair->key = strdup(key);
+    if (newPair->key == NULL) {
+        free(newPair);
+        printf("Memory allocation failed.");
+        exit(EXIT_FAILURE);
+    }
+    newPair->value = value;
+    newPair->next = NULL;
+    pair->next = newPair;
+    map->currSize++;
     return 0;
 }
 
@@ -128,17 +133,19 @@ int put(HashMap *map, char *key, int value) {
  * Return: 0 if sucessful, else -1
 */
 int get(HashMap *map, char *key, int *value) {
-    //TODO: handle collision
-
     size_t index = hash(map, key);
-    if (map->pairs[index] != NULL && strcmp(map->pairs[index]->key, key) == 0) {
-        *value = map->pairs[index]->value;
-        return 0;
 
-    } else {
-        printf("Key \"%s\" not in map.\n", key);
-        return -1;
+    Pair *pair = map->pairs[index];
+    while (pair != NULL) {
+        if (strcmp(pair->key, key) == 0) {
+            *value = pair->value;
+            return 0;
+        }
+        pair = pair->next;
     }
+
+    printf("Key \"%s\" not in map.\n", key);
+    return -1;
 }
 
 /**
@@ -148,20 +155,36 @@ int get(HashMap *map, char *key, int *value) {
  * Return: 0 if sucessful, else -1
 */
 int delete(HashMap *map, char *key) {
-    //TODO: handle collision
-
     size_t index = hash(map, key);
-    if (map->pairs[index] != NULL && strcmp(map->pairs[index]->key, key) == 0) {
-        free(map->pairs[index]->key);
-        free(map->pairs[index]);
-        map->pairs[index] = NULL;
-        map->currSize--;
-        return 0;
-    } else { 
-        printf("Key \"%s\" not in map.\n", key);
-        return -1;
+    Pair *pair = map->pairs[index];
+    Pair *prev = NULL;
+
+    // Loop through bucket to find pair
+    while (pair != NULL) {
+        if (strcmp(pair->key, key) == 0) {
+            // If pair to be deleted is first in bucket
+            if (prev == NULL) {
+                map->pairs[index] = pair->next;
+            } else {
+                // Pair to be deleted is not the first, link previous to next
+                prev->next = pair->next;
+            }
+            
+            // Free memory
+            free(pair->key);
+            free(pair);
+            map->currSize--;
+            return 0;
+        }
+        prev = pair;
+        pair = pair->next;
     }
+
+    // If pair not found
+    printf("Key \"%s\" not in map.\n", key);
+    return -1;
 }
+
 
 /**
  * Summary: Free allocated memory associated with the hash map
@@ -170,9 +193,12 @@ int delete(HashMap *map, char *key) {
 */
 void destroyHashMap(HashMap *map) {
     for (int i = 0; i < map->maxSize; i++) {
-        if (map->pairs[i] != NULL) {
-            free(map->pairs[i]->key);
-            free(map->pairs[i]); 
+        Pair *pair = map->pairs[i];
+        while (pair != NULL) {
+            Pair *tmp = pair;
+            pair = pair->next;
+            free(tmp->key);
+            free(tmp);
         }
     }
     free(map->pairs);
