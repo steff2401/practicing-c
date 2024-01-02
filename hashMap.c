@@ -14,25 +14,27 @@ typedef struct {
 
 HashMap* createEmptyMap(size_t maxSize);
 size_t hash(char *key, size_t maxSize);
-void put(HashMap *map, char *key, int value);
-int get(HashMap *map, char *key);
-void delete(HashMap *map, char *key);
+int put(HashMap *map, char *key, int value);
+int get(HashMap *map, char *key, int *value);
+int delete(HashMap *map, char *key);
 void destroyHashMap(HashMap *map);
 
 int main(void) {
     HashMap *map = createEmptyMap(3);
-    put(map, "A", 1);
-    put(map, "B", 2);
-    put(map, "C", 3);
-    put(map, "C", 4);
 
-    printf("%d\n", get(map, "A"));
-    printf("%d\n", get(map, "B"));
-    printf("%d\n", get(map, "C")); // should print 4
-    // printf("%d\n", get(map, "D")); // should say key not in map
+    if (put(map, "A", 1) == -1 || put(map, "B", 2) == -1 || 
+        put(map, "C", 3) == -1 || put(map, "C", 4) == -1) {
+            printf("Error in put()-function.\n");
+            destroyHashMap(map);
+            exit(EXIT_FAILURE);
+    }
 
-    delete(map, "C");
-    printf("%d\n", get(map, "C")); // should say key not in map
+    int val1, val2, val3;
+    if (get(map, "A", &val1) == -1 || get(map, "B", &val2) == -1 || get(map, "C", &val3) == -1) {
+        printf("Error in get()-function.\n");
+    }
+
+    printf("A:%d, B:%d, C:%d\n", val1, val2, val3);
 
     destroyHashMap(map);
     return 0;
@@ -65,13 +67,14 @@ size_t hash(char *key, size_t maxSize) {
     return hash % maxSize;
 }
 
-void put(HashMap *map, char *key, int value) {
+int put(HashMap *map, char *key, int value) {
+    //TODO: handle collision
+
     size_t index = hash(key, map->maxSize);
     // if map is full and you try to put in new key-val pair
     if (map->currSize >= map->maxSize && strcmp(map->pairs[index]->key, key) != 0) {
         printf("Map is full.\n");
-        destroyHashMap(map);
-        exit(EXIT_FAILURE);
+        return -1;
     }
     
     // if key-val pair doesn't exist from before
@@ -96,28 +99,36 @@ void put(HashMap *map, char *key, int value) {
     } else if (strcmp(map->pairs[index]->key, key) == 0) {
         map->pairs[index]->value = value;
     }
-    //TODO: handle collision
+    return 0;
 }
 
-int get(HashMap *map, char *key) {
+int get(HashMap *map, char *key, int *value) {
+    //TODO: handle collision
+
     size_t index = hash(key, map->maxSize);
     if (map->pairs[index] != NULL && strcmp(map->pairs[index]->key, key) == 0) {
-        return map->pairs[index]->value;
+        *value = map->pairs[index]->value;
+        return 0;
+
+    } else {
+        printf("Key \"%s\" not in map.\n", key);
+        return -1;
     }
-    printf("Key \"%s\" not in map.\n", key);
-    destroyHashMap(map);
-    exit(EXIT_FAILURE);
 }
 
-void delete(HashMap *map, char *key) {
+int delete(HashMap *map, char *key) {
+    //TODO: handle collision
+
     size_t index = hash(key, map->maxSize);
     if (map->pairs[index] != NULL && strcmp(map->pairs[index]->key, key) == 0) {
         free(map->pairs[index]->key);
         free(map->pairs[index]);
         map->pairs[index] = NULL;
         map->currSize--;
+        return 0;
     } else { 
         printf("Key \"%s\" not in map.\n", key);
+        return -1;
     }
 }
 
