@@ -21,7 +21,7 @@ int delete(HashMap *map, char *key);
 void destroyHashMap(HashMap *map);
 void printHashMap(HashMap* map);
 
-int main() {
+int main(void) {
     // Create a hash map with a limited size to cause collisions
     HashMap* hashMap = createEmptyMap(5);
 
@@ -226,6 +226,11 @@ void destroyHashMap(HashMap *map) {
     free(map);
 }
 
+/**
+ * Summary: Prints key-value pairs in map following the bucket structure
+ * Parameters: map - pointer to hash map
+ * Return: void
+*/
 void printHashMap(HashMap* map) {
 
     printf("HashMap Contents:\n");
