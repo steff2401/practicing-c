@@ -12,7 +12,6 @@ struct LinkedList {
     struct Node *head;
     struct Node *tail;
     int size;
-    int bucketIndex; // to use with hashmap
 };
 
 struct LinkedList* createEmptyList(void);
@@ -22,8 +21,26 @@ void removeNode(struct LinkedList *list, int value);
 void printList(struct LinkedList *list);
 void destroyList(struct LinkedList *list);
 
+int main(void) {
+
+    struct LinkedList *list = createEmptyList();
+
+    for (int i = 0; i < 10; i++) {
+        insertNode(list, i);
+    }
+
+    printList(list);
+    removeNode(list, 5);
+    printList(list);
+    removeNode(list, 5);
+
+    destroyList(list);
+
+    return 0;
+}
+
 struct LinkedList* createEmptyList(void) {
-    struct LinkedList *list = (struct LinkedList*)malloc(sizeof(struct LinkedList));
+    struct LinkedList *list = malloc(sizeof(struct LinkedList));
     if (!list) {
         printf("Allocation of memory failed.\n");
         exit(EXIT_FAILURE);
@@ -35,7 +52,7 @@ struct LinkedList* createEmptyList(void) {
 }
 
 struct Node* createNode(int value) {
-    struct Node *node = (struct Node*)malloc(sizeof(struct Node));
+    struct Node *node = malloc(sizeof(struct Node));
     if (node == NULL) {
         printf("Allocation of memory failed.\n");
         exit(EXIT_FAILURE);
@@ -81,7 +98,7 @@ void removeNode(struct LinkedList *list, int value) {
         return;
     }
 
-    // if value in tail (here it's guranteed to be at least two elements in list)
+    // if value in tail, and tail != head (here it's guranteed to be at least two elements in list)
     if (list->tail->val == value) {
         struct Node *temp = list->tail;
         list->tail = list->tail->prev;

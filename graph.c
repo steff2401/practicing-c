@@ -7,10 +7,10 @@ typedef struct Node Node;
 struct Node {
     int value, nNeighbours, neighbourSpace;
     Node **neighbours;
-    int *weights; // weights of edges to neighbours at corresponding index
+    int *weights; // weight of edge to neighbour at corresponding index in **neighbours
 };
 
-typedef struct Graph {
+typedef struct {
     Node* nodes[MAX_NODES];
     int nNodes;
 } Graph;
